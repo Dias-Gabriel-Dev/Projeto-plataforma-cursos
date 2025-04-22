@@ -18,7 +18,7 @@ class Services {
     return database[this.model].findByPk(id);
   }
 
-  async pegaUmRegistroP(where) {
+  async pegaUmRegistro(where) {
     return database[this.model].findOne({ where: {...where }});
   }
 
