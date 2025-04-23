@@ -1,5 +1,6 @@
-const { where } = require('sequelize');
-const converteIds = require('../utils/conversorDeStringHelper.js')
+const {  validaUsuario } = require('../utils/validacoes.js');
+// const { where } = require('sequelize');
+const converteIds = require('../utils/conversorDeStringHelper.js');
 
 class Controller {
   constructor(entidadeService) {
@@ -32,12 +33,18 @@ class Controller {
       const umRegistro = await this.entidadeService.pegaUmRegistro(where);
       return res.status(200).json(umRegistro);
     } catch (erro) {
-      return res.status(500).json({ mensagem: `Erro ao buscar o registro com id ${id}.`, erro: erro.message });
+      return res.status(500).json({ mensagem: `Erro ao buscar o registro com id ${where}.`, erro: erro.message });
     }
   }
 
   async criaNovo(req, res) {
     const dadosParaCriacao = req.body;
+    const { error } = validaUsuario.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({ mensagem: error.details[0].message });
+    }
+
     try {
       const novoRegistroCriado = await this.entidadeService.criaRegistro(dadosParaCriacao);
       return res.status(200).json(novoRegistroCriado);
@@ -50,7 +57,7 @@ class Controller {
     const { ...params } = req.params;
     const dadosAtualizados = req.body;
 
-    const where = converteIds(params)
+    const where = converteIds(params);
     try {
       const foiAtualizado = await this.entidadeService.atualizaRegistro(dadosAtualizados, where);
       if (!foiAtualizado) {
